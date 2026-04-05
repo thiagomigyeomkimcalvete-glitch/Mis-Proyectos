@@ -1,4 +1,4 @@
-word = input("Escribe una palabra que no entiendas (¡con mayúsculas!): ")
+word = input("Escribe una palabra que no entiendas (con mayúsculas): ")
 meme_dict = {
             "CRINGE": "Algo que te de verguenza ajena",
             "LOL": "Es cuando te quieres referir que algo es muy gracioso",
