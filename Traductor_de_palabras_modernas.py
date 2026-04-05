@@ -9,6 +9,6 @@ meme_dict = {
 if word in meme_dict.keys():
     print(meme_dict[word])
 else:
-    print("Lo sinto, ni yo se que significa eso")
+    print("Lo siento, ni yo se que significa eso")
 
 
