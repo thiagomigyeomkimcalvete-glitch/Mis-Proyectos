@@ -42,7 +42,19 @@ async def password(ctx, longitud:int):
 
     await ctx.send("tu clave es:" + password)
 
+@bot.command()
+async def tips(ctx):
+    numero = random.randint(1, 9)
+    text_path = f"Consejos_Ecologicos/Consejo{numero}.txt"
 
+    if not os.path.exists(text_path):
+        await ctx.send("No se encontró el archivo de consejo.")
+        return
+    
+    with open(text_path, "r", encoding="utf-8") as archivo:
+        contenido = archivo.read()
+
+    await ctx.send(contenido)
 @bot.command()
 async def mem(ctx):
     num = random.randint(1, 5)
@@ -56,6 +68,9 @@ async def mem(ctx):
     else:
         images = os.listdir("images")
         image_path = f"images/{random.choice(images)}"
+    if not os.path.exists(image_path):
+        await ctx.send("No se encontró la imagen.")
+        return
 
     with open(image_path, "rb") as f:
         picture = discord.File(f)
@@ -63,7 +78,7 @@ async def mem(ctx):
 
     # Escribir en el archivo de texto
     with open("text.txt", "a", encoding="utf-8") as f:
-        f.write("XD")
+        f.write("XD\n")
 
 def get_duck_image_url():    
     url = 'https://random-d.uk/api/random'
@@ -72,7 +87,7 @@ def get_duck_image_url():
     return data['url']
 
 
-@bot.command('duck')
+@bot.command(name = 'duck')
 async def duck(ctx):
     '''Una vez que llamamos al comando duck, 
     el programa llama a la función get_duck_image_url'''
