@@ -1,0 +1,21 @@
+# Import the Pin class from the machine module
+from machine import Pin
+# Import the sleep function from the time module
+from time import sleep     
+
+# Create a Pin object for pin 5 as an input with a pull-up resistor
+button = Pin(9, Pin.IN, Pin.PULL_UP)   
+
+# Start an infinite loop
+while True:
+    # Read the current state of the button    
+    button_state = button.value()    
+    # Check if the button state is LOW (0)
+    if button_state == 0:    
+        # If the button is not pressed, print a message
+        print("Button not pressed")    
+    else:
+        # If the button is pressed, print a message
+        print("Button pressed")    
+    # Pause the program for 0.5 seconds
+    sleep(0.5)
