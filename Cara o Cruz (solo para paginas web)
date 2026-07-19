@@ -1,7 +1,0 @@
-@app.route("/moneda")
-def moneda():
-    lanzamiento = random.randint(1,2)
-    if lanzamiento == 1:
-        return("te salió cara")
-    elif lanzamiento == 2:
-        return("te salió cruz")
