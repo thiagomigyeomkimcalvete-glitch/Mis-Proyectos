@@ -1,0 +1,120 @@
+#Servomotor
+import time
+from machine import Pin, PWM
+
+# Configurar el pin PWM en el pin D5 (puedes cambiarlo si usas otro)
+# En el Nano ESP32 de MicroPython, solemos usar la numeración de pines nativa o los alias.
+# Si usas el firmware oficial de Arduino, puedes usar el número de pin correspondiente.
+servo_pin = Pin(8, Pin.OUT) 
+servo = PWM(servo_pin)
+
+# Los servos estándar funcionan a una frecuencia de 50Hz
+servo.freq(50)
+
+def mapear_angulo_a_duty(angulo):
+    """
+    Traduce un ángulo (0 a 180) al ciclo de trabajo (duty) de MicroPython.
+    En ESP32, el duty cycle va de 0 a 1023 (10 bits).
+    - 0 grados   -> ~0.5ms de pulso -> Duty aprox: 26
+    - 180 grados -> ~2.5ms de pulso -> Duty aprox: 128
+    (Nota: Estos valores pueden variar ligeramente según la marca del servo)
+    """
+    if angulo < 0: angulo = 0
+    if angulo > 180: angulo = 180
+    
+    # Rango ligeramente más seguro para el Miuzei MS18 (ajustado de 30 a 125)
+    duty = int(30 + (angulo / 180) * (125 - 30))
+    return duty
+
+def mover_servo(angulo):
+    duty = mapear_angulo_a_duty(angulo)
+    servo.duty(duty)
+    print(f"Ángulo: {angulo}° | Duty: {duty}")
+
+# --- Bucle Principal ---
+try:
+    while True:
+        # Mover a 0 grados
+        mover_servo(0)
+        time.sleep(1)
+        
+        # Mover a 90 grados
+        mover_servo(90)
+        time.sleep(1)
+        
+        # Mover a 180 grados
+        mover_servo(180)
+        time.sleep(1)
+        
+        # Barrido suave de 0 a 180 y viceversa
+        print("Iniciando barrido...")
+        for angulo in range(0, 181, 10):
+            mover_servo(angulo)
+            time.sleep(0.05)
+            
+        for angulo in range(180, -1, -10):
+            mover_servo(angulo)
+            time.sleep(0.05)
+
+except KeyboardInterrupt:
+    # Apagar el PWM al detener el script con Ctrl+C
+    servo.deinit()
+    print("Programa finalizado y PWM desactivado.")
+
+
+
+
+#Motor paso a paso
+from machine import Pin
+import time
+
+# Pines del motor (ajusta según tu conexión en la NanoESP32)
+IN1 = Pin(14, Pin.OUT)
+IN2 = Pin(27, Pin.OUT)
+IN3 = Pin(26, Pin.OUT)
+IN4 = Pin(25, Pin.OUT)
+
+# Función para mover hacia adelante
+def mover_adelante(pasos, delay=5):
+    for i in range(pasos):
+        IN1.value(1); IN2.value(0); IN3.value(0); IN4.value(0)
+        time.sleep_ms(delay)
+        IN1.value(0); IN2.value(1); IN3.value(0); IN4.value(0)
+        time.sleep_ms(delay)
+        IN1.value(0); IN2.value(0); IN3.value(1); IN4.value(0)
+        time.sleep_ms(delay)
+        IN1.value(0); IN2.value(0); IN3.value(0); IN4.value(1)
+        time.sleep_ms(delay)
+
+# Función para mover hacia atrás
+def mover_atras(pasos, delay=5):
+    for i in range(pasos):
+        IN1.value(0); IN2.value(0); IN3.value(0); IN4.value(1)
+        time.sleep_ms(delay)
+        IN1.value(0); IN2.value(0); IN3.value(1); IN4.value(0)
+        time.sleep_ms(delay)
+        IN1.value(0); IN2.value(1); IN3.value(0); IN4.value(0)
+        time.sleep_ms(delay)
+        IN1.value(1); IN2.value(0); IN3.value(0); IN4.value(0)
+        time.sleep_ms(delay)
+
+# Ejemplo de uso directo:
+while True:
+  mover_adelante(100, delay=5)   # Mover hacia adelante 100 pasos
+  mover_atras(100, delay=5)      # Mover hacia atrás 100 pasos
+  mover_adelante(200, delay=5)   # Giro hacia la derecha 200 pasos
+  mover_atras(200, delay=5)      # Giro hacia la izquierda 200 pasos
+
+
+
+#Lucecitas led
+from machine import Pin
+import time
+
+myLED = Pin(0, Pin.OUT)
+
+while True:
+    myLED.value(0)
+    time.sleep(1)
+    myLED.value(1)
+    time.sleep(1)
