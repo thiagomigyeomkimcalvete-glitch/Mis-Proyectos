@@ -1,0 +1,81 @@
+#Antes que nada tienes que escribir en la consola "py -m pip install sounddevice numpy scipy SpeechRecognition googletrans", sino no te va a funcionar
+
+import sounddevice as sd
+import numpy as np
+import scipy.io.wavfile as wav
+import speech_recognition as sr
+from googletrans import Translator
+import asyncio
+import random
+
+duration = 5  # segundos de grabación
+sample_rate = 44100
+puntos = 0
+errores = 0
+
+palabras_por_nivel = {
+    "facil": ["gato", "perro", "manzana", "leche", "sol"],
+    "medio": ["banana", "escuela", "amigo", "ventana", "amarillo"],
+    "dificil": ["tecnología", "universidad", "información", "pronunciación", "imaginación"]
+}
+
+while True:
+    Seleccion_de_niveles = input("Selecciona el nivel que quieras, facil, medio o dificil.".lower())
+
+    if Seleccion_de_niveles == "facil":
+        palabra = random.choice(palabras_por_nivel["facil"])
+        break
+    elif Seleccion_de_niveles == "medio":
+        palabra = random.choice(palabras_por_nivel["medio"])
+        break
+    elif Seleccion_de_niveles == "dificil":
+        palabra = random.choice(palabras_por_nivel["dificil"])
+        break
+    else:
+        print("No ingresaste ninguna de las palabras, vuelve a intentar.")
+
+
+
+while True:
+    print("Tu palabra es ", palabra)
+    print("Traducela ahora...")
+    recording = sd.rec(
+    int(duration * sample_rate), # el número de muestras a grabar
+    samplerate=sample_rate,      # tasa de muestreo
+    channels=1,                  # 1 significa grabación mono
+    dtype="int16")               # tipo de datos para las muestras grabadas
+    sd.wait()  # esperando a que termine la grabación
+
+    wav.write("output.wav", sample_rate, recording)
+    print("Grabación completa, ahora reconociendo...")
+
+    recognizer = sr.Recognizer()
+    with sr.AudioFile("output.wav") as source:
+        audio = recognizer.record(source)
+
+    try:
+        text = recognizer.recognize_google(audio, language="en")
+        print("Dijiste:", text)
+        translator = Translator()
+        traduccion = asyncio.run(
+            translator.translate(palabra, src="es", dest="en")
+        )
+        print("Palabra original:", palabra)
+        print("Traducción obtenida:", traduccion.text)
+        print("Texto reconocido:", repr(text))
+
+
+        
+        if traduccion.text.lower().strip() == text.lower().strip():
+            puntos += 1
+            print("Muy bien!!! Has acertado, ahora tienes ", puntos, "puntos")
+        else:
+            errores += 1
+            print("Te has equivocado, ahora tienes,", errores, "errores, vuelve a intentarlo")
+    except sr.UnknownValueError:             # - si Google no pudo entender el habla debido a ruido o silencio
+        print("No se pudo reconocer el habla.")
+    except sr.RequestError as e:             # - si no hay conexión a Internet o la API no está disponible
+        print(f"Error del servicio: {e}")
+    if errores == 3:
+        print("Lo sientos, se te han acabado tus oportunidades, para tu favor almenos terminaste con ", puntos, "puntos, enorabuena!!!!!")
+        break
